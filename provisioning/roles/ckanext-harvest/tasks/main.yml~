@@ -1,0 +1,8 @@
+---
+
+sudo apt-get install rabbitmq-server
+
+Redis: To install it, run:
+
+sudo apt-get install redis-server
+

@@ -1,0 +1,6 @@
+---
+- name: Copy mx theme
+  pip: name='git+https://github.com/okfn/ckanext-mx.git' virtualenv=/usr/lib/ virtualenv_site_packages=no
+
+- name: Run script to change translations
+  shell: /usr/lib/ckanext-mx/bin/build-combined-ckan-mo.sh

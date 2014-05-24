@@ -1,0 +1,17 @@
+---
+- name: Create Datastore DB
+  sudo_user: postgres
+  postgresql_db: name={{datastore_default}} encoding='UTF-8' lc_collate={{locale}} lc_ctype={{locale}} template=template0 login_password={{ds_password}}
+
+- name: Create Database User
+  sudo_user: postgres
+  postgresql_user: db={{datastore_default}} name={{ckan_readonlyuser}} password={{ds_password}}
+  
+- name: Change permissions to datastore db user
+  sudo_user: postgres
+  postgresql_privs: database={{ckan_datastore}} roles={{ckan_readonlyuser}} privs=SELECT state=present objs=ALL_IN_SCHEMA
+
+
+- name: Restart Apache
+  service: name=apache2 state=reloaded
+  

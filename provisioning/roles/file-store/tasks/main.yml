@@ -1,0 +1,7 @@
+---
+- name: Create upload directory
+  file: path=/var/lib/ckan/default state=directory owner=www-data mode=0700
+
+
+- name: Reload Apache
+  service: name=apache2 state=reloaded

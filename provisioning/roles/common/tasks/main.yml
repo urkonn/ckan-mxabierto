@@ -1,0 +1,16 @@
+---
+- name: Install Required Packages
+  apt: pkg={{ item }} state=present update_cache=yes
+  with_items:
+    - apache2
+    - git-core
+    - libapache2-mod-wsgi
+    - libpq-dev
+    - nginx
+    - openjdk-6-jdk
+    - postgresql
+    - python-dev
+    - python-pip
+    - python-psycopg2
+    - python-virtualenv
+    - solr-jetty

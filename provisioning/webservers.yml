@@ -1,0 +1,20 @@
+---
+- hosts: vagrant
+  user: vagrant
+  sudo: true
+  vars:
+    locale: es_MX.UTF-8
+    language: es_MX:es
+  vars_files:
+    - secrets/dbsecrets.yml
+  roles:
+    - common
+    - ckan
+    - file-store
+    - data-store
+    - spatial-extension
+    - page-tracking-extension
+    - configuration
+    - disqus-extension
+    - ckanext-harvest
+    - mx

@@ -1,0 +1,6 @@
+
+
+pip install -e git+https://github.com/okfn/ckanext-disqus#egg=ckanext-disqus
+
+ckan.plugins = disqus <other-plugins>
+disqus.name = YOUR_DISQUS_NAME

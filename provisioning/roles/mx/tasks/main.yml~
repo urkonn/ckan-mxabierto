@@ -1,0 +1,3 @@
+---
+- name: Copy mx theme
+  https://github.com/okfn/ckanext-mx.git
