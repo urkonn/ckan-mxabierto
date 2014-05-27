@@ -22,11 +22,11 @@
 - name: Install CKAN spatial extension to virtualenv
   pip: name='git+https://github.com/okfn/ckanext-spatial.git@stable#egg=ckanext-spatial' virtualenv=/usr/lib/ckan/default virtualenv_site_packages=no
 
-- name: Install Python Requiements
+- name: Install Python Requirements
   pip: requirements=/usr/lib/ckan/default/src/ckanext-spatial/pip-requirements.txt virtualenv=/usr/lib/ckan/default virtualenv_site_packages=no
 
 - name: Enable all extensions  
-  ini_file: dest=/etc/ckan/default/production.ini section=app:main option=ckan.plugins value="datastore stats resource_proxy pdf_preview recline_preview text_preview spatial_metadata spatial_query geojson_preview wms_preview harvest ckan_harvester disqus mx"
+  ini_file: dest=/etc/ckan/default/production.ini section=app:main option=ckan.plugins value="datastore stats resource_proxy pdf_preview recline_preview text_preview spatial_metadata spatial_query geojson_preview wms_preview harvest ckan_harvester disqus"
 
 - name: Enable Spatial Search with Solr Backend
   ini_file: dest=/etc/ckan/default/production.ini section=app:main option=ckanext.spatial.search_backend value=solr

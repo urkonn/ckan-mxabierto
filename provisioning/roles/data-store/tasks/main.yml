@@ -9,7 +9,7 @@
   
 - name: Change permissions to datastore db user
   sudo_user: postgres
-  postgresql_privs: database={{ckan_datastore}} roles={{ckan_readonlyuser}} privs=SELECT state=present objs=ALL_IN_SCHEMA
+  postgresql_privs: database={{datastore_default}} roles={{ckan_readonlyuser}} privs=SELECT state=present objs=ALL_IN_SCHEMA
 
 
 - name: Restart Apache
