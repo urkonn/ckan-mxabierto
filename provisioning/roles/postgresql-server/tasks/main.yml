@@ -1,0 +1,50 @@
+---
+- name: Generate locales
+  command: locale-gen {{locale}}
+
+- name: Update locale
+  command: update-locale LANGUAGE={{language}} LANG={{locale}} LC_ALL={{locale}}
+  
+- name: Set system locale
+  shell: . /etc/default/locale
+
+- name: Install Required Packages
+  apt: pkg={{ item }} state=present update_cache=yes
+  with_items:
+    - git-core
+    - libpq-dev
+    - openjdk-6-jdk
+    - postgresql
+    - python-dev
+    - python-pip
+    - python-psycopg2
+    - solr-jetty
+    
+- name: Start DB Cluster
+  command: /etc/init.d/postgresql start
+    
+- name: Create DB
+  sudo_user: postgres
+  postgresql_db: name={{ckan_db}} encoding="UTF-8" lc_collate={{locale}} lc_ctype={{locale}} template=template0
+  
+- name: Reload PostgreSQL
+  service: name=postgresql state=reloaded
+
+- name: Create ckan db user
+  sudo_user: postgres
+  postgresql_user: db={{ckan_db}} name={{ckan_user}} password={{pg_password}} priv=ALL
+
+- name: Copy Jetty configuration to remote host
+  copy: src=roles/postgresql-server/files/jetty dest=/etc/default/jetty force=yes
+
+- name: Start Jetty Server
+  service: name=jetty state=started
+
+- name: Backup Solr schema
+  command: mv /etc/solr/conf/schema.xml /etc/solr/conf/schema.xml.bak
+
+- name: Replace Solr schema.xml with symlink to CKAN schema file
+  file: src=roles/postgresql-server/files/schema.xml dest=/etc/solr/conf/schema.xml state=link force=yes
+
+- name: Restart Jetty Server
+  service: name=jetty state=restarted

@@ -1,0 +1,39 @@
+---
+- name: Generate locales
+  command: locale-gen {{locale}}
+
+- name: Update locale
+  command: update-locale LANGUAGE={{language}} LANG={{locale}} LC_ALL={{locale}}
+  
+- name: Set system locale
+  shell: . /etc/default/locale
+
+- name: Install Required Packages
+  apt: pkg={{ item }} state=present update_cache=yes
+  with_items:
+    - python-dev
+    - libpq-dev
+    - python-pip
+    - python-virtualenv
+    - git-core
+    
+- name: Install CKAN source to virtualenv
+  pip: name='git+https://github.com/ckan/ckan.git@ckan-2.2#egg=ckan' virtualenv=/usr/lib/ckan/default virtualenv_site_packages=no
+  
+- name: Install Python Requirements
+  pip: requirements=/usr/lib/ckan/default/src/ckan/requirements.txt virtualenv=/usr/lib/ckan/default virtualenv_site_packages=no
+
+- name: Create site directory
+  file: path=/etc/ckan/default state=directory owner=vagrant
+
+- name: Setup Development ini file
+  command: /usr/lib/ckan/default/bin/paster make-config ckan /etc/ckan/default/development.ini
+
+- name: Copy Development ini file
+  copy: src=roles/ckan-install/files/development.ini dest=/etc/ckan/default/development.ini force=yes
+  
+- name: Create database tables
+  command: chdir=/etc/ckan/default /usr/lib/ckan/default/bin/paster --plugin=ckan db init -c development.ini
+
+- name: Link to who.ini
+  file: src=/usr/lib/ckan/default/src/ckan/who.ini dest=/etc/ckan/default/who.ini state=link force=yes

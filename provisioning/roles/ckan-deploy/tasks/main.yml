@@ -1,0 +1,44 @@
+---
+- name: Setup Production ini file
+  copy: src=production.ini dest=/etc/ckan/default/production.ini
+  
+- name: Install Required Packages
+  apt: pkg={{ item }} state=present update_cache=yes
+  with_items:
+    - apache2
+    - libapache2-mod-wsgi
+    - nginx
+    - postfix
+    
+- name: Copy Apache WSGI file
+  copy: src=roles/common/files/apache.wsgi dest=/etc/ckan/default/apache.wsgi force=yes
+  
+- name: Copy Apache configuration file
+  copy: src=roles/common/files/ckan_default dest=/etc/apache2/sites-available/ckan_default force=yes
+
+- name: Copy Nginx configuration file
+  copy: src=roles/common/files/ckan_default_nginx dest=/etc/nginx/sites-available/ckan_default force=yes
+
+- name: Enable CKAN apache
+  command: a2ensite ckan_default
+
+- name: Enable CKAN nginx
+  file: src=/etc/nginx/sites-available/ckan_default dest=/etc/nginx/sites-enabled/ckan_default state=link force=yes 
+
+- name: Reload Apache2
+  service: name=apache2 state=reloaded
+ 
+- name: Reload Nginx
+  service: name=nginx state=reloaded
+
+- name: Update NameVirtualPort port
+  lineinfile: dest=/etc/apache2/ports.conf regexp='^NameVirtualHost' line='NameVirtualHost *:8080' backrefs=yes
+
+- name: Update Listen port
+  lineinfile: dest=/etc/apache2/ports.conf regexp='^Listen 80' line='Listen 8080' backrefs=yes
+
+- name: Reload Apache2
+  service: name=apache2 state=reloaded
+
+- name: Reload Nginx
+  service: name=nginx state=reloaded
