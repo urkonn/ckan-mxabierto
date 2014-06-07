@@ -13,8 +13,10 @@
   with_items:
     - python-dev
     - libpq-dev
+    - postgresql
     - python-pip
     - python-virtualenv
+    - python-psycopg2
     - git-core
     
 - name: Install CKAN source to virtualenv
@@ -31,6 +33,9 @@
 
 - name: Copy Development ini file
   copy: src=roles/ckan-install/files/development.ini dest=/etc/ckan/default/development.ini force=yes
+  
+#- name: Connect remote DB server
+
   
 - name: Create database tables
   command: chdir=/etc/ckan/default /usr/lib/ckan/default/bin/paster --plugin=ckan db init -c development.ini

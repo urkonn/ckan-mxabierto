@@ -7,48 +7,13 @@
     - libxslt1-dev
     - libgeos-c1
 
-- name: Create tables and functions
-  command: sudo -u postgres psql -d ckan_default -f /usr/share/postgresql/9.1/contrib/postgis-1.5/postgis.sql
-
-- name: Create tables and functions
-  command: sudo -u postgres psql -d ckan_default -f /usr/share/postgresql/9.1/contrib/postgis-1.5/spatial_ref_sys.sql
-
-- name: Create tables and functions
-  command: sudo -u postgres psql -d ckan_default -c "ALTER TABLE spatial_ref_sys OWNER TO ckan_default"
-
-- name: Create tables and functions
-  command: sudo -u postgres psql -d ckan_default -c "ALTER TABLE geometry_columns OWNER TO ckan_default"
-
 - name: Install CKAN spatial extension to virtualenv
   pip: name='git+https://github.com/okfn/ckanext-spatial.git@stable#egg=ckanext-spatial' virtualenv=/usr/lib/ckan/default virtualenv_site_packages=no
 
 - name: Install Python Requirements
   pip: requirements=/usr/lib/ckan/default/src/ckanext-spatial/pip-requirements.txt virtualenv=/usr/lib/ckan/default virtualenv_site_packages=no
 
-- name: Enable all extensions  
-  ini_file: dest=/etc/ckan/default/production.ini section=app:main option=ckan.plugins value="datastore stats resource_proxy pdf_preview recline_preview text_preview spatial_metadata spatial_query geojson_preview wms_preview harvest ckan_harvester disqus"
-
-- name: Enable Spatial Search with Solr Backend
-  ini_file: dest=/etc/ckan/default/production.ini section=app:main option=ckanext.spatial.search_backend value=solr
-
-# Use a template file instead?
-- name: Add Spatial Search to Solr Configuration (bbox_area)
-  lineinfile: dest=/etc/solr/conf/schema.xml insertbefore='</fields>' line='    <field name="bbox_area" type="float" indexed="true" stored="true" />'
-
-- name: Add Spatial Search to Solr Configuration (maxx)
-  lineinfile: dest=/etc/solr/conf/schema.xml insertbefore='^</fields>' line='    <field name="maxx" type="float" indexed="true" stored="true" />'
-
-- name: Add Spatial Search to Solr Configuration (maxy)
-  lineinfile: dest=/etc/solr/conf/schema.xml insertbefore='^</fields>' line='    <field name="maxy" type="float" indexed="true" stored="true" />'
-
-- name: Add Spatial Search to Solr Configuration (minx)
-  lineinfile: dest=/etc/solr/conf/schema.xml insertbefore='^</fields>' line='    <field name="minx" type="float" indexed="true" stored="true" />'
-
-- name: Add Spatial Search to Solr Configuration (miny)
-  lineinfile: dest=/etc/solr/conf/schema.xml insertbefore='^</fields>' line='    <field name="miny" type="float" indexed="true" stored="true" />'
-
-- name: Restart Jetty Server
-  service: name=jetty state=restarted
-
+- name: Create spatial db
+  command: /usr/lib/ckan/default/bin/paster --plugin=ckanext-spatial spatial initdb [srid] --config=/etc/ckan/default/development.ini
 - name: Reload Apache
   service: name=apache2 state=reloaded

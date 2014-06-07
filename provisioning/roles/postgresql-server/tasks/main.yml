@@ -11,21 +11,47 @@
 - name: Install Required Packages
   apt: pkg={{ item }} state=present update_cache=yes
   with_items:
-    - git-core
     - libpq-dev
     - openjdk-6-jdk
     - postgresql
-    - python-dev
-    - python-pip
     - python-psycopg2
     - solr-jetty
     
 - name: Start DB Cluster
   command: /etc/init.d/postgresql start
+  
+- name: Echo
+  shell: cat /etc/postgresql/9.1/main/pg_hba.conf
     
 - name: Create DB
   sudo_user: postgres
   postgresql_db: name={{ckan_db}} encoding="UTF-8" lc_collate={{locale}} lc_ctype={{locale}} template=template0
+  
+- name: Change pg_hba.conf
+  copy: src=roles/postgresql-server/files/pg_hba.conf dest=/etc/postgresql/9.1/main/pg_hba.conf force=yes
+  
+- name: Enable PostgreSQL remote connection
+  copy: src=roles/postgresql-server/files/postgresql.conf dest=/etc/postgresql/9.1/main/postgresql.conf force=yes
+  
+- name: Get iptables rules
+  shell: iptables -L
+  register: iptablesrules
+  always_run: yes
+  sudo: true
+ 
+- name: Add PostgreSQL iptable rule
+  command: iptables -A INPUT -p tcp -s 0/0 --sport 1024:65535 -d 192.168.33.10 --dport 5432 -m state --state NEW,ESTABLISHED -j ACCEPT -m comment --comment "postgresql"
+  command: iptables -A OUTPUT -p tcp -s 192.168.33.10 --sport 5432 -d 0/0 --dport 1024:65535 -m state --state ESTABLISHED -j ACCEPT -m comment --comment "postgresql"
+  sudo: true
+  when: iptablesrules.stdout.find("postgresql") == -1
+ 
+- name: save iptables
+  command: iptables-save
+  sudo: true
+ 
+- name: restart iptables
+  service: name=ufw state=restarted
+  sudo: true 
   
 - name: Reload PostgreSQL
   service: name=postgresql state=reloaded
@@ -40,11 +66,15 @@
 - name: Start Jetty Server
   service: name=jetty state=started
 
-- name: Backup Solr schema
-  command: mv /etc/solr/conf/schema.xml /etc/solr/conf/schema.xml.bak
+#- name: Backup Solr schema
+#  command: mv /etc/solr/conf/schema.xml /etc/solr/conf/schema.xml.bak
 
-- name: Replace Solr schema.xml with symlink to CKAN schema file
-  file: src=roles/postgresql-server/files/schema.xml dest=/etc/solr/conf/schema.xml state=link force=yes
+- name: Replace Solr schema.xml with CKAN schema file
+  file: src=schema.xml dest=/etc/solr/conf/schema.xml force=yes
+  
+- name: schema en usrshare
+  file: src=schema.xml dest=/usr/share/solr/conf/schema.xml force=yes
 
 - name: Restart Jetty Server
   service: name=jetty state=restarted
+  

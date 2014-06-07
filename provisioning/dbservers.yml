@@ -10,4 +10,5 @@
   roles:
     - postgresql-server
     - data-store
+    - spatial-db
     

@@ -11,13 +11,13 @@
     - postfix
     
 - name: Copy Apache WSGI file
-  copy: src=roles/common/files/apache.wsgi dest=/etc/ckan/default/apache.wsgi force=yes
+  copy: src=apache.wsgi dest=/etc/ckan/default/apache.wsgi force=yes
   
 - name: Copy Apache configuration file
-  copy: src=roles/common/files/ckan_default dest=/etc/apache2/sites-available/ckan_default force=yes
+  copy: src=ckan_default dest=/etc/apache2/sites-available/ckan_default force=yes
 
 - name: Copy Nginx configuration file
-  copy: src=roles/common/files/ckan_default_nginx dest=/etc/nginx/sites-available/ckan_default force=yes
+  copy: src=ckan_default_nginx dest=/etc/nginx/sites-available/ckan_default force=yes
 
 - name: Enable CKAN apache
   command: a2ensite ckan_default
