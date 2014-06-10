@@ -14,6 +14,6 @@
   pip: requirements=/usr/lib/ckan/default/src/ckanext-spatial/pip-requirements.txt virtualenv=/usr/lib/ckan/default virtualenv_site_packages=no
 
 - name: Create spatial db
-  command: /usr/lib/ckan/default/bin/paster --plugin=ckanext-spatial spatial initdb [srid] --config=/etc/ckan/default/development.ini
+  command: /usr/lib/ckan/default/bin/paster --plugin=ckanext-spatial spatial initdb 4326 --config=/etc/ckan/default/development.ini
 - name: Reload Apache
   service: name=apache2 state=reloaded
