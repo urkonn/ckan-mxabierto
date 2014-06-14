@@ -1,0 +1,23 @@
+---
+- name: Install PostGIS packages
+  apt: pkg={{ item }} state=present
+  with_items:
+    - postgresql-9.1-postgis
+    - libxml2-dev
+    - libxslt1-dev
+    - libgeos-c1
+
+- name: Create tables and functions
+  command: sudo -u postgres psql -d ckan_default -f /usr/share/postgresql/9.1/contrib/postgis-1.5/postgis.sql
+
+- name: Create tables and functions
+  command: sudo -u postgres psql -d ckan_default -f /usr/share/postgresql/9.1/contrib/postgis-1.5/spatial_ref_sys.sql
+
+- name: Create tables and functions
+  command: sudo -u postgres psql -d ckan_default -c "ALTER TABLE spatial_ref_sys OWNER TO ckan_default"
+
+- name: Create tables and functions
+  command: sudo -u postgres psql -d ckan_default -c "ALTER TABLE geometry_columns OWNER TO ckan_default"
+
+- name: Restart Jetty Server
+  service: name=jetty state=restarted

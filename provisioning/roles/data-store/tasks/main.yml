@@ -11,7 +11,4 @@
   sudo_user: postgres
   postgresql_privs: database={{datastore_default}} roles={{ckan_readonlyuser}} privs=SELECT state=present objs=ALL_IN_SCHEMA
 
-
-- name: Restart Apache
-  service: name=apache2 state=reloaded
   

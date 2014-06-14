@@ -8,25 +8,24 @@
 - name: Set system locale
   shell: . /etc/default/locale
 
+- name: Install Required Packages
+  apt: pkg={{ item }} state=present update_cache=yes
+  with_items:
+    - apache2
+    - git-core
+    - libapache2-mod-wsgi
+    - libpq-dev
+    - nginx
+    - python-dev
+    - python-pip
+    - python-psycopg2
+    - python-virtualenv
+
 - name: Install CKAN source to virtualenv
   pip: name='git+https://github.com/ckan/ckan.git@ckan-2.2#egg=ckan' virtualenv=/usr/lib/ckan/default virtualenv_site_packages=no
 
 - name: Install Python Requirements
   pip: requirements=/usr/lib/ckan/default/src/ckan/requirements.txt virtualenv=/usr/lib/ckan/default virtualenv_site_packages=no
-
-- name: Start DB Cluster
-  command: /etc/init.d/postgresql start
-
-- name: Create DB
-  sudo_user: postgres
-  postgresql_db: name={{ckan_db}} encoding="UTF-8" lc_collate={{locale}} lc_ctype={{locale}} template=template0
-  
-- name: Reload PostgreSQL
-  service: name=postgresql state=reloaded
-
-- name: Create ckan db user
-  sudo_user: postgres
-  postgresql_user: db={{ckan_db}} name={{ckan_user}} password={{pg_password}} priv=ALL
 
 - name: Create site directory
   file: path=/etc/ckan/default state=directory owner=vagrant
@@ -34,33 +33,14 @@
 - name: Setup Development ini file
   command: /usr/lib/ckan/default/bin/paster make-config ckan /etc/ckan/default/development.ini
 
-  
-
-- name: Copy Jetty configuration to remote host
-  copy: src=roles/common/files/jetty dest=/etc/default/jetty force=yes
-
-- name: Start Jetty Server
-  service: name=jetty state=started
-
-- name: Backup Solr schema
-  command: mv /etc/solr/conf/schema.xml /etc/solr/conf/schema.xml.bak
-
-- name: Replace Solr schema.xml with symlink to CKAN schema file
-  file: src=/usr/lib/ckan/default/src/ckan/ckan/config/solr/schema.xml dest=/etc/solr/conf/schema.xml state=link force=yes
-
-- name: Restart Jetty Server
-  service: name=jetty state=restarted
-
 - name: Initialize CKAN database
   command: chdir=/etc/ckan/default /usr/lib/ckan/default/bin/paster --plugin=ckan db init
 
 - name: Link to who.ini
   file: src=/usr/lib/ckan/default/src/ckan/who.ini dest=/etc/ckan/default/who.ini state=link force=yes
 
-
 - name: Setup Production ini file
   copy: src=production.ini dest=/etc/ckan/default/production.ini
-
 
 - name: Copy Apache WSGI file
   copy: src=roles/common/files/apache.wsgi dest=/etc/ckan/default/apache.wsgi force=yes

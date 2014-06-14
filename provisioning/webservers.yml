@@ -1,5 +1,5 @@
 ---
-- hosts: vagrant
+- hosts: webservers
   user: vagrant
   sudo: true
   vars:
@@ -8,10 +8,9 @@
   vars_files:
     - secrets/dbsecrets.yml
   roles:
-    - common
-    - ckan
+    - ckan-install
+    - ckan-deploy
     - file-store
-    - data-store
     - spatial-extension
     - page-tracking-extension
     - configuration
