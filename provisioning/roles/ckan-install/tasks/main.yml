@@ -28,14 +28,8 @@
 - name: Create site directory
   file: path=/etc/ckan/default state=directory owner=vagrant
 
-- name: Setup Development ini file
-  command: /usr/lib/ckan/default/bin/paster make-config ckan /etc/ckan/default/development.ini
-
 - name: Copy Development ini file
   copy: src=roles/ckan-install/files/development.ini dest=/etc/ckan/default/development.ini force=yes
-  
-#- name: Connect remote DB server
-
   
 - name: Create database tables
   command: chdir=/etc/ckan/default /usr/lib/ckan/default/bin/paster --plugin=ckan db init -c development.ini

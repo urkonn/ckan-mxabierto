@@ -19,9 +19,6 @@
     
 - name: Start DB Cluster
   command: /etc/init.d/postgresql start
-  
-- name: Echo
-  shell: cat /etc/postgresql/9.1/main/pg_hba.conf
     
 - name: Create DB
   sudo_user: postgres
