@@ -32,3 +32,4 @@ $ vagrant provision
 ```
 
 desde el navegador abrir la dirección local 192.168.33.20:8080
+

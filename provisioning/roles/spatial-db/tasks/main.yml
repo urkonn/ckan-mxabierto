@@ -21,3 +21,6 @@
 
 - name: Restart Jetty Server
   service: name=jetty state=restarted
+
+- name: Reload PostgreSQL
+  service: name=postgresql state=reloaded
