@@ -27,6 +27,15 @@
 
 - name: Create site directory
   file: path=/etc/ckan/default state=directory owner=vagrant
+  
+- name: Change pg_hba.conf
+  copy: src=roles/postgresql-server/files/pg_hba.conf dest=/etc/postgresql/9.1/main/pg_hba.conf force=yes
+  
+- name: Enable PostgreSQL remote connection
+  copy: src=roles/postgresql-server/files/postgresql.conf dest=/etc/postgresql/9.1/main/postgresql.conf force=yes
+  
+- name: Reload PostgreSQL
+  service: name=postgresql state=reloaded 
 
 - name: Copy Development ini file
   copy: src=roles/ckan-install/files/development.ini dest=/etc/ckan/default/development.ini force=yes
